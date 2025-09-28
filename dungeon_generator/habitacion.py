@@ -1,8 +1,10 @@
 from typing import Dict, Optional, Tuple
+from abc import ABC, abstractmethod
 from .objeto import Objeto
 
 
-class ContenidoHabitacion:
+
+class ContenidoHabitacion(ABC):
    
     
     @property
@@ -52,4 +54,5 @@ class Habitacion:
             "inicial": self.inicial,
             "visitada": self.visitada,
             
+
         }
