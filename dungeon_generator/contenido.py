@@ -1,4 +1,4 @@
-
+import random
 from abc import ABC, abstractmethod
 from typing import Optional
 from dungeon_generator.objeto import Objeto
@@ -32,4 +32,91 @@ class Tesoro(ContenidoHabitacion):
     
     def interactuar(self, explorador) -> str:
         explorador.inventario.append(self.recompensa)
+
         return f"¡Encontraste {self.recompensa.nombre}!"
+
+class Monstruo(ContenidoHabitacion):
+    def __init__(self, nombre: str, vida: int, ataque: int):
+        self.nombre = nombre
+        self.vida = vida
+        self.vida_maxima = vida
+        self.ataque = ataque
+    
+    @property
+    def descripcion(self) -> str:
+        return f"Un {self.nombre} con {self.vida} de vida"
+    
+    @property
+    def tipo(self) -> str:
+        return "monstruo"
+    
+    def interactuar(self, explorador) -> str:
+        mensaje = f"¡Te enfrentas a un {self.nombre}!\n"
+        
+        while self.vida > 0 and explorador.esta_vivo:
+            # Turno del jugador
+            if random.random() < 0.6:  # 60% de probabilidad de exito
+                danio_jugador = random.randint(1, 2)
+                self.vida -= danio_jugador
+                mensaje += f"¡Golpeas al {self.nombre} por {danio_jugador} de daño! "
+            else:
+                mensaje += "Fallaste tu ataque. "
+            
+            if self.vida <= 0:
+                mensaje += f"\n¡Derrotaste al {self.nombre}!"
+                break
+            
+           
+            if random.random() < 0.7:  # 70% de probabilidad de exito
+                explorador.recibir_dano(self.ataque)
+                mensaje += f"El {self.nombre} te ataca por {self.ataque} de daño."
+            else:
+                mensaje += f"El {self.nombre} falla su ataque."
+            
+            mensaje += f" (Vida del {self.nombre}: {max(0, self.vida)})\n"
+        
+        if not explorador.esta_vivo:
+            mensaje += f"\n¡Has sido derrotado por el {self.nombre}!"
+        
+        return mensaje
+
+class Jefe(Monstruo):
+    def __init__(self, nombre: str, vida: int, ataque: int, recompensa_especial: Objeto):
+        super().__init__(nombre, vida, ataque)
+        self.recompensa_especial = recompensa_especial
+    
+    @property
+    def tipo(self) -> str:
+        return "jefe"
+    
+    def interactuar(self, explorador) -> str:
+        mensaje = f"¡CUIDADO! Te enfrentas al JEFE {self.nombre}!\n"
+        
+        while self.vida > 0 and explorador.esta_vivo:
+            # Turno del jugador (menor probabilidad contra jefe)
+            if random.random() < 0.4:  # 40% de probabilidad contra jefe
+                danio_jugador = random.randint(1, 2)
+                self.vida -= danio_jugador
+                mensaje += f"¡Logras herir al {self.nombre} por {danio_jugador} de daño! "
+            else:
+                mensaje += "Tu ataque es esquivado. "
+            
+            if self.vida <= 0:
+                explorador.inventario.append(self.recompensa_especial)
+                mensaje += f"\n¡INCREIBLE! Derrotaste al JEFE {self.nombre}!"
+                mensaje += f"\n¡Obtienes {self.recompensa_especial.nombre}!"
+                break
+            
+            # Turno del jefe (mayor probabilidad)
+            if random.random() < 0.8:  # 80% de probabilidad del jefe
+                explorador.recibir_dano(self.ataque)
+                mensaje += f"El {self.nombre} te golpea por {self.ataque} de daño."
+            else:
+                mensaje += f"El {self.nombre} falla su ataque."
+            
+            mensaje += f" (Vida del {self.nombre}: {max(0, self.vida)})\n"
+        
+        if not explorador.esta_vivo:
+            mensaje += f"\n¡El JEFE {self.nombre} te ha derrotado!"
+        
+        return mensaje
