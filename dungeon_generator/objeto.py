@@ -10,7 +10,7 @@ class Objeto:
         return f"{self.nombre} (Valor: {self.valor}) - {self.descripcion}"
     
     def to_dict(self) -> dict:
-        """Convierte el objeto a diccionario para serialización"""
+        """Convierte el objeto a diccionario para serializacion"""
         return {
             "nombre": self.nombre,
             "valor": self.valor,
@@ -24,4 +24,5 @@ class Objeto:
             nombre=data["nombre"],
             valor=data["valor"],
             descripcion=data["descripcion"]
+
         )
