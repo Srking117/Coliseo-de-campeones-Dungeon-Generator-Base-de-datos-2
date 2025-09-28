@@ -1,0 +1,11 @@
+[project]
+name = "dungeon-generator"
+version = "0.1.0"
+description = "Generador de mapas de dungeon para Bases de Datos II"
+dependencies = [
+    "rich>=13.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
