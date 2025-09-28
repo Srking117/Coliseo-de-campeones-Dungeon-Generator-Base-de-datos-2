@@ -1,3 +1,4 @@
+from typing import List, Optional, Tuple  
 from typing import List, Optional
 from .objeto import Objeto
 from .mapa import Mapa
@@ -64,4 +65,5 @@ class Explorador:
     
     def obtener_estadisticas(self) -> str:
         """Devuelve estadisticas del explorador"""
+
         return f"Vida: {self.vida}/{self.vida_maxima} | Inventario: {len(self.inventario)} objetos"
