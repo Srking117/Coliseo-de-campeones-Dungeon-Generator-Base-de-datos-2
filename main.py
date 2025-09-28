@@ -1,4 +1,3 @@
-
 """Sebastian Riveros Koenderink - Base de datos 2 - Umag"""
 
 from dungeon_generator.mapa import Mapa
@@ -26,7 +25,7 @@ def main():
     
     print(f"Mapa generado: {mapa.ancho}x{mapa.alto}")
     print(f"Habitaciones creadas: {len(mapa.habitaciones)}")
-    print(f"Habitación inicial: ({mapa.habitacion_inicial.x}, {mapa.habitacion_inicial.y})")
+    print(f"Habitacion inicial: ({mapa.habitacion_inicial.x}, {mapa.habitacion_inicial.y})")
     print()
     
     # Colocar contenido de prueba
@@ -62,5 +61,8 @@ def main():
     
     print("¡Aventurate en el coliseo de campeones!")
 
+    
+
 if __name__ == "__main__":
     main()
+
