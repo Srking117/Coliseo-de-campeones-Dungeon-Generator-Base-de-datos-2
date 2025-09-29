@@ -45,9 +45,10 @@ class Serializador:
             for objeto_data in datos_partida["explorador"]["inventario"]
         ]
         
-        # Establecer posición actual
+        # Establecer posicion actual
         pos_data = datos_partida["explorador"]["posicion_actual"]
         explorador.posicion_actual = (pos_data[0], pos_data[1])
         
         print(f"Partida cargada desde: {archivo}")
+
         return mapa, explorador
