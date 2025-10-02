@@ -7,12 +7,12 @@ from dungeon_generator.contenido import Tesoro, Monstruo, Jefe
 from dungeon_generator.serializador import Serializador
 
 def main():
-    print("=== Coliseo de campeones ===\n")
+    print("=== 🏛️ Coliseo de campeones 🏛️ ===\n")
   
 
     objetos_tesoro = [
         Objeto("Aguijon", 100, "De tierras lejanas, pertenecio a un caballero llamado Hollow Knight"),
-        Objeto("Frasco de Estus", 25, "Restaura 2 puntos de vida - Proviene de un mundo, ya un reino olvidado protegido por el Dark Souls"),
+        Objeto(" 🏺 Frasco de Estus 🏺", 25, "Restaura 2 puntos de vida - Proviene de un mundo, ya un reino olvidado protegido por el Dark Souls"),
         Objeto("Sombrero de Artur Morgan", 75, "Pertenecio a un lengendario forajido del lejano oeste, este sombrero te otorgara honor, y velocidad de disparo"),
         Objeto("Pokebola", 150, "Se desconoce su origen, pero se dice que contiene a Pikachu..."),
     ]
@@ -92,4 +92,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
