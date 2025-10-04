@@ -15,7 +15,8 @@ class Serializador:
                 "vida": explorador.vida,
                 "vida_maxima": explorador.vida_maxima,
                 "inventario": [objeto.to_dict() for objeto in explorador.inventario],
-                "posicion_actual": list(explorador.posicion_actual)
+                "posicion_actual": list(explorador.posicion_actual),
+                "bonificacion_combate": explorador.bonificacion_combate
             }
         }
         
@@ -23,7 +24,7 @@ class Serializador:
             json.dump(datos_partida, f, indent=2, ensure_ascii=False)
         
         print(f"Partida guardada en: {archivo}")
-    # Reconstruye lo siguiente:
+    
     @staticmethod
     def cargar_partida(archivo: str) -> tuple[Mapa, Explorador]:
         """Carga una partida completa desde archivo JSON"""
@@ -31,15 +32,16 @@ class Serializador:
         with open(archivo, 'r', encoding='utf-8') as f:
             datos_partida = json.load(f)
         
-        #  mapa
+        # Reconstruir mapa
         mapa = Mapa.from_dict(datos_partida["mapa"])
         
-        # explorador
+        # Reconstruir explorador
         explorador = Explorador(mapa)
         explorador.vida = datos_partida["explorador"]["vida"]
         explorador.vida_maxima = datos_partida["explorador"]["vida_maxima"]
+        explorador.bonificacion_combate = datos_partida["explorador"].get("bonificacion_combate", 0)
         
-        # inventario
+        # Reconstruir inventario
         explorador.inventario = [
             Objeto.from_dict(objeto_data) 
             for objeto_data in datos_partida["explorador"]["inventario"]
