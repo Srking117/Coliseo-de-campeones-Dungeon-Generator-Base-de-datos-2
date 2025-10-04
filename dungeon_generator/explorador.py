@@ -9,7 +9,7 @@ class Explorador:
         self.inventario: List[Objeto] = []
         self.mapa: Mapa = mapa
         self.posicion_actual: Tuple[int, int] = mapa.habitacion_inicial.x, mapa.habitacion_inicial.y
-        self.bonificacion_combate: int = 0  # Nueva propiedad para eventos
+        self.bonificacion_combate: int = 0 
     
     def mover(self, direccion: str) -> bool:
         """Mueve al explorador entre habitaciones conectadas"""
@@ -69,3 +69,4 @@ class Explorador:
         """Devuelve estadisticas del explorador"""
         bonificacion_text = f" | Bonificación: {self.bonificacion_combate}" if self.bonificacion_combate > 0 else ""
         return f"Vida: {self.vida}/{self.vida_maxima} | Inventario: {len(self.inventario)} objetos{bonificacion_text}"
+
