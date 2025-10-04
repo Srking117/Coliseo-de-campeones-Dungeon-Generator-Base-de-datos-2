@@ -40,7 +40,7 @@ class Mapa:
         if n_habitaciones > max_habitaciones:
             raise ValueError(f"No se pueden generar {n_habitaciones} habitaciones en un mapa de {self.ancho}x{self.alto}")
         
-       
+        # Generar habitación inicial en el borde
         posiciones_borde = []
         for x in range(self.ancho):
             for y in range(self.alto):
@@ -52,7 +52,7 @@ class Mapa:
         self.habitaciones[(x_inicial, y_inicial)] = habitacion_inicial
         self.habitacion_inicial = habitacion_inicial
         
-       
+        # Generar habitaciones adicionales
         habitaciones_generadas = 1
         x_actual, y_actual = x_inicial, y_inicial
         direcciones = ['norte', 'sur', 'este', 'oeste']
@@ -84,9 +84,8 @@ class Mapa:
                 x_actual, y_actual = posicion_aleatoria
     
     def colocar_contenido(self, objetos_tesoro: List[Objeto], objetos_jefe: List[Objeto]) -> None:
+        """Coloca contenido en las habitaciones incluyendo eventos"""
         
-        
-      
         habitaciones_disponibles = [
             habitacion for habitacion in self.habitaciones.values() 
             if not habitacion.inicial
@@ -97,7 +96,7 @@ class Mapa:
         
         total_habitaciones = len(habitaciones_disponibles)
         
-        
+        # Colocar jefe 
         jefe_habitacion = random.choice(habitaciones_disponibles)
         objeto_jefe = random.choice(objetos_jefe)
         distancia_jefe = self._calcular_distancia_manhattan(
@@ -118,6 +117,7 @@ class Mapa:
         # Calcular cantidades con porcentajes
         n_monstruos = max(1, int(total_habitaciones * random.uniform(0.2, 0.3)))
         n_tesoros = max(1, int(total_habitaciones * random.uniform(0.15, 0.25)))
+        n_eventos = max(1, int(total_habitaciones * random.uniform(0.05, 0.1)))
         
         # Colocar monstruos (20-30%)
         monstruos_colocados = 0
@@ -156,10 +156,22 @@ class Mapa:
             habitaciones_disponibles.remove(habitacion)
             tesoros_colocados += 1
         
+        # Colocar eventos (5-10%)
+        from .eventos import GritoMultitud, TrampaGladiadores, FuenteCampeones, PortalDestino, FantasmaCampeon
+        eventos_disponibles = [GritoMultitud, TrampaGladiadores, FuenteCampeones, PortalDestino, FantasmaCampeon]
+        
+        eventos_colocados = 0
+        while eventos_colocados < n_eventos and habitaciones_disponibles:
+            habitacion = random.choice(habitaciones_disponibles)
+            evento_clase = random.choice(eventos_disponibles)
+            habitacion.contenido = evento_clase()
+            habitaciones_disponibles.remove(habitacion)
+            eventos_colocados += 1
+        
         # El resto de habitaciones quedan vacias
     
     def obtener_estadisticas_mapa(self) -> Dict[str, int | float]:
-        
+        """Obtiene estadísticas del mapa"""
         total_habitaciones = len(self.habitaciones)
         
         # Contar contenido
@@ -168,7 +180,8 @@ class Mapa:
             "vacia": 0,
             "tesoro": 0,
             "monstruo": 0,
-            "jefe": 0
+            "jefe": 0,
+            "evento": 0
         }
         
         total_conexiones = 0
@@ -213,7 +226,7 @@ class Mapa:
         mapa = cls(data["ancho"], data["alto"])
         mapa._id_counter = data["_id_counter"]
         
-       
+        # Primero crear todas las habitaciones
         for coord_str, habitacion_data in data["habitaciones"].items():
             x, y = map(int, coord_str.split(','))
             habitacion = Habitacion(
@@ -222,11 +235,41 @@ class Mapa:
                 habitacion_data["inicial"]
             )
             habitacion.visitada = habitacion_data["visitada"]
+            
+            # Reconstruir contenido si existe
+            if habitacion_data["contenido"]:
+                contenido_data = habitacion_data["contenido"]
+                tipo_contenido = contenido_data["tipo"]
+                
+                if tipo_contenido == "tesoro":
+                    from .contenido import Tesoro
+                    habitacion.contenido = Tesoro.from_dict(contenido_data)
+                elif tipo_contenido == "monstruo":
+                    from .contenido import Monstruo
+                    habitacion.contenido = Monstruo.from_dict(contenido_data)
+                elif tipo_contenido == "jefe":
+                    from .contenido import Jefe
+                    habitacion.contenido = Jefe.from_dict(contenido_data)
+                elif tipo_contenido == "evento":
+                    from .eventos import Evento
+                    habitacion.contenido = Evento.from_dict(contenido_data)
+            
             mapa.habitaciones[(x, y)] = habitacion
             
             if habitacion.inicial:
                 mapa.habitacion_inicial = habitacion
         
-       
+        # Ahora reconstruir conexiones
+        for coord_str, habitacion_data in data["habitaciones"].items():
+            x, y = map(int, coord_str.split(','))
+            habitacion_actual = mapa.habitaciones[(x, y)]
+            
+            # Reconstruir conexiones buscando habitaciones vecinas
+            direcciones = ['norte', 'sur', 'este', 'oeste']
+            for direccion in direcciones:
+                x_vec, y_vec = mapa._obtener_coordenada_vecina(x, y, direccion)
+                if (x_vec, y_vec) in mapa.habitaciones:
+                    habitacion_vecina = mapa.habitaciones[(x_vec, y_vec)]
+                    habitacion_actual.agregar_conexion(direccion, habitacion_vecina)
         
         return mapa
