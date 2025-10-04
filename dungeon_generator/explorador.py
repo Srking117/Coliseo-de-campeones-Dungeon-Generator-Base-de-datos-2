@@ -1,5 +1,4 @@
-from typing import List, Optional, Tuple  
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from .objeto import Objeto
 from .mapa import Mapa
 
@@ -10,9 +9,10 @@ class Explorador:
         self.inventario: List[Objeto] = []
         self.mapa: Mapa = mapa
         self.posicion_actual: Tuple[int, int] = mapa.habitacion_inicial.x, mapa.habitacion_inicial.y
+        self.bonificacion_combate: int = 0  # Nueva propiedad para eventos
     
     def mover(self, direccion: str) -> bool:
-        
+        """Mueve al explorador entre habitaciones conectadas"""
         direccion = direccion.lower()
         direcciones_validas = ['norte', 'sur', 'este', 'oeste']
         
@@ -32,7 +32,7 @@ class Explorador:
             return False
     
     def explorar_habitacion(self) -> str:
-       
+        """Explora la habitación actual e interactúa con su contenido"""
         habitacion_actual = self.mapa.obtener_habitacion_por_coordenadas(*self.posicion_actual)
         habitacion_actual.visitada = True
         
@@ -40,16 +40,18 @@ class Explorador:
             return "La habitacion está vacia."
         else:
             resultado = habitacion_actual.contenido.interactuar(self)
-            habitacion_actual.contenido = None  
+            # Solo eliminar contenido si no es un evento (los eventos pueden repetirse)
+            if habitacion_actual.contenido.tipo != "evento":
+                habitacion_actual.contenido = None
             return resultado
     
     def obtener_habitaciones_adyacentes(self) -> List[str]:
-        
+        """Obtiene las direcciones disponibles desde la posición actual"""
         habitacion_actual = self.mapa.obtener_habitacion_por_coordenadas(*self.posicion_actual)
         return list(habitacion_actual.conexiones.keys())
     
     def recibir_dano(self, cantidad: int) -> None:
-        
+        """Reduce la vida del explorador"""
         self.vida = max(0, self.vida - cantidad)
         print(f"¡Recibiste {cantidad} de daño! Vida restante: {self.vida}")
     
@@ -65,5 +67,5 @@ class Explorador:
     
     def obtener_estadisticas(self) -> str:
         """Devuelve estadisticas del explorador"""
-
-        return f"Vida: {self.vida}/{self.vida_maxima} | Inventario: {len(self.inventario)} objetos"
+        bonificacion_text = f" | Bonificación: {self.bonificacion_combate}" if self.bonificacion_combate > 0 else ""
+        return f"Vida: {self.vida}/{self.vida_maxima} | Inventario: {len(self.inventario)} objetos{bonificacion_text}"
