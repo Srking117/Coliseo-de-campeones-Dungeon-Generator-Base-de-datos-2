@@ -43,6 +43,11 @@ class Tesoro(ContenidoHabitacion):
             "tipo": "tesoro",
             "recompensa": self.recompensa.to_dict()
         }
+    
+    @classmethod
+    def from_dict(cls, data: dict) -> 'Tesoro':
+        recompensa = Objeto.from_dict(data["recompensa"])
+        return cls(recompensa)
 
 class Monstruo(ContenidoHabitacion):
     def __init__(self, nombre: str, vida: int, ataque: int):
@@ -62,9 +67,15 @@ class Monstruo(ContenidoHabitacion):
     def interactuar(self, explorador) -> str:
         mensaje = f"¡Te enfrentas a un {self.nombre}!\n"
         
+        # Aplicar bonificación de combate si existe
+        probabilidad_ataque = 0.6
+        if hasattr(explorador, 'bonificacion_combate') and explorador.bonificacion_combate > 0:
+            probabilidad_ataque = 0.8
+            explorador.bonificacion_combate -= 1
+        
         while self.vida > 0 and explorador.esta_vivo:
             # Turno del jugador
-            if random.random() < 0.6:
+            if random.random() < probabilidad_ataque:
                 danio_jugador = random.randint(1, 2)
                 self.vida -= danio_jugador
                 mensaje += f"¡Golpeas al {self.nombre} por {danio_jugador} de daño! "
@@ -97,6 +108,16 @@ class Monstruo(ContenidoHabitacion):
             "vida_maxima": self.vida_maxima,
             "ataque": self.ataque
         }
+    
+    @classmethod
+    def from_dict(cls, data: dict) -> 'Monstruo':
+        monstruo = cls(
+            nombre=data["nombre"],
+            vida=data["vida"],
+            ataque=data["ataque"]
+        )
+        monstruo.vida_maxima = data["vida_maxima"]
+        return monstruo
 
 class Jefe(Monstruo):
     def __init__(self, nombre: str, vida: int, ataque: int, recompensa_especial: Objeto):
@@ -110,9 +131,15 @@ class Jefe(Monstruo):
     def interactuar(self, explorador) -> str:
         mensaje = f"¡CUIDADO! Te enfrentas al JEFE {self.nombre}!\n"
         
+        # Aplicar bonificación de combate si existe
+        probabilidad_ataque = 0.4
+        if hasattr(explorador, 'bonificacion_combate') and explorador.bonificacion_combate > 0:
+            probabilidad_ataque = 0.6
+            explorador.bonificacion_combate -= 1
+        
         while self.vida > 0 and explorador.esta_vivo:
             # Turno del jugador (menor probabilidad contra jefe)
-            if random.random() < 0.4:
+            if random.random() < probabilidad_ataque:
                 danio_jugador = random.randint(1, 2)
                 self.vida -= danio_jugador
                 mensaje += f"¡Logras herir al {self.nombre} por {danio_jugador} de daño! "
@@ -125,7 +152,7 @@ class Jefe(Monstruo):
                 mensaje += f"\n¡Obtienes {self.recompensa_especial.nombre}!"
                 break
             
-            # Turno del jefe (mayor probabilidad)
+            # Turno del jefe mayor probabilidad
             if random.random() < 0.8:
                 explorador.recibir_dano(self.ataque)
                 mensaje += f"El {self.nombre} te golpea por {self.ataque} de daño."
@@ -144,3 +171,15 @@ class Jefe(Monstruo):
         datos["tipo"] = "jefe"
         datos["recompensa_especial"] = self.recompensa_especial.to_dict()
         return datos
+    
+    @classmethod
+    def from_dict(cls, data: dict) -> 'Jefe':
+        recompensa_especial = Objeto.from_dict(data["recompensa_especial"])
+        jefe = cls(
+            nombre=data["nombre"],
+            vida=data["vida"],
+            ataque=data["ataque"],
+            recompensa_especial=recompensa_especial
+        )
+        jefe.vida_maxima = data["vida_maxima"]
+        return jefe
