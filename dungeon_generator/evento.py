@@ -97,11 +97,10 @@ class PortalDestino(Evento):
         )
 
 class FantasmaCampeon(Evento):
-    """Alma que ayuda en combate"""
+    """Fantasma que ayuda en combate"""
     def __init__(self):
         super().__init__(
             "Alma de Campeón de las cenizas pasado",
             "El espíritu de un antiguo campeón te otorga su bendición",
             "bonificacion"
-
         )
